@@ -1,8 +1,8 @@
 package cw5.z4;
 
 import java.lang.reflect.Array;
-import java.util.Arrays;
-import java.util.Comparator;
+import java.util.*;
+import java.util.stream.Collectors;
 import java.util.stream.Stream;
 
 public class Main {
@@ -18,16 +18,66 @@ public class Main {
         };
         System.out.println("sortujOsoby -------------");
         sortujOsoby(osoby);
+        System.out.println("sredniWiek --------------");
+        System.out.println(sredniWiek(osoby));
+        System.out.println("najmlodszaOsoba ---------");
+        System.out.println(najmlodszaOsoba(osoby));
+        System.out.println("najmlodszaZMiasta -------");
+        najmlodszaZMiasta(osoby,"Warszawa");
+        najmlodszaZMiasta(osoby,"Poznań");
+        System.out.println("rozneImiona -------------");
+        System.out.println(rozneImiona(osoby));
     }
     public static void sortujOsoby(Osoba[] osoby) {
-        Comparator<Osoba> WG_NAZWISKA = (o1,o2) -> {
-            if (o1.nazwisko.compareTo(o2.nazwisko) != 0)
-                return o1.nazwisko.compareTo(o2.nazwisko);
-            else
-                return o1.imie.compareTo(o2.imie);
-        };
+//        Stream.of(osoby)
+//                .sorted((o1,o2) -> {
+//                    if (o1.nazwisko.compareTo(o2.nazwisko) != 0)
+//                        return o1.nazwisko.compareTo(o2.nazwisko);
+//                    else
+//                        return o1.imie.compareTo(o2.imie);
+//                })
+//                .forEach(System.out::println);
         Stream.of(osoby)
-                .sorted(WG_NAZWISKA)
+                .sorted(Comparator
+                        .comparing((Osoba o)->o.nazwisko)
+                        .thenComparing((Osoba o)->o.imie))
                 .forEach(System.out::println);
+    }
+    public static double sredniWiek(Osoba[] osoby) {
+        return Stream.of(osoby)
+                .mapToInt(o->o.wiek)
+                .average()
+                .getAsDouble();
+    }
+    public static Osoba najmlodszaOsoba(Osoba[] osoby) {
+        return Stream.of(osoby)
+                .min(Comparator.comparing(o -> o.wiek))
+                .get();
+    }
+    public static void najmlodszaZMiasta(Osoba[] osoby, String miasto) {
+        Stream.of(osoby)
+                .filter(o->o.miasto.equals(miasto))
+                .min(Comparator.comparing(o->o.wiek))
+                .ifPresentOrElse(
+                        System.out::println,
+                        ()->System.out.println("brak osob z takiego miasta")
+                );
+    }
+    public static Set rozneImiona(Osoba[] osoby) {
+        return Stream.of(osoby)
+                .map(o->o.imie)
+                .collect(Collectors.toSet());
+    }
+    public static void policzImiona(Osoba[] osoby) {
+        Stream.of(osoby)
+                .collect(Collectors.groupingBy(o->o.imie))
+                .entrySet().stream()
+                .sorted(
+                        Comparator.comparing((Map.Entry<String, List<Osoba>> e)->e.getValue().size())
+                                .reversed())
+                .map(e->e.getKey()+": "+e.getValue().size())
+                .forEach(System.out::println);
+
+
     }
 }
