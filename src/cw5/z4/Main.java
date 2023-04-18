@@ -12,6 +12,7 @@ public class Main {
                 new Osoba("Anna", "Wójcik", 32, "Kraków"),
                 new Osoba("Jan", "Kowalski", 45, "Warszawa"),
                 new Osoba("Piotr", "Nowak", 58, "Wrocław"),
+                new Osoba("Adam", "Skorupski", 49, "Kraków"),
                 new Osoba("Marta", "Nowak", 27, "Warszawa"),
                 new Osoba("Piotr", "Zieliński", 18, "Warszawa"),
                 new Osoba("Jan", "Wójcik", 25, "Warszawa")
@@ -27,6 +28,10 @@ public class Main {
         najmlodszaZMiasta(osoby,"Poznań");
         System.out.println("rozneImiona -------------");
         System.out.println(rozneImiona(osoby));
+        System.out.println("policzImiona ------------");
+        policzImiona(osoby);
+        System.out.println("miastaWgWieku -----------");
+        miastaWgWieku(osoby);
     }
     public static void sortujOsoby(Osoba[] osoby) {
 //        Stream.of(osoby)
@@ -74,10 +79,27 @@ public class Main {
                 .entrySet().stream()
                 .sorted(
                         Comparator.comparing((Map.Entry<String, List<Osoba>> e)->e.getValue().size())
-                                .reversed())
+                                .reversed()
+                                .thenComparing((Map.Entry<String, List<Osoba>> e)->e.getKey()))
                 .map(e->e.getKey()+": "+e.getValue().size())
                 .forEach(System.out::println);
-
-
+    }
+    public static void miastaWgWieku(Osoba[] osoby) {
+        Stream.of(osoby)
+                .collect(Collectors.groupingBy(o->{
+                    int begin = (o.wiek-1)/10*10+1;
+                    int end = begin+9;
+                    return begin+"-"+end;
+                }))
+                .entrySet().stream()
+                .sorted(
+                        Comparator.comparing((Map.Entry<String, List<Osoba>> e)->e.getKey())
+                )
+                .map(e->
+                        e.getKey()+": "+e.getValue().stream()
+                                .map(o->o.miasto)
+                                .collect(Collectors.toSet())
+                )
+                .forEach(System.out::println);
     }
 }
