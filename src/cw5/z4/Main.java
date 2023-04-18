@@ -93,7 +93,7 @@ public class Main {
                 }))
                 .entrySet().stream()
                 .sorted(
-                        Comparator.comparing((Map.Entry<String, List<Osoba>> e)->e.getKey())
+                        Comparator.comparing(Map.Entry::getKey)
                 )
                 .map(e->
                         e.getKey()+": "+e.getValue().stream()
