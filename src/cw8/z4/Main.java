@@ -1,12 +1,14 @@
-package cw8.z3;
+package cw8.z4;
 
 
-import java.util.*;
+import java.util.ArrayList;
+import java.util.Scanner;
+import java.util.TreeSet;
 
 public class Main {
     public static ArrayList<Long> liczbyPierwsze = new ArrayList<>();
-    private static ArrayList<Long> counterTab = new ArrayList<>();
     public static ArrayList<Thread> threads = new ArrayList<>();
+    public static TreeSet<Long> zamowione = new TreeSet<>();
 
     public static void main(String[] args) {
         Scanner sc = new Scanner(System.in);
@@ -32,23 +34,12 @@ public class Main {
             if (k > 0) {
                 Thread t = new Thread(()->{
                     long wynik = 0;
-                    while (wynik==0) {
-                        if (Thread.currentThread().isInterrupted()) {
-                            System.out.println("Przerwano watek...");
-                            return;
-                        }
-                        wynik = getLiczba(k);
-                        if (wynik==0) {
-                            try {
-                                System.out.println("sleep....");
-                                System.out.println(liczbyPierwsze.size());
-                                Thread.sleep(1000);
-                            } catch (InterruptedException e) {
-                            }
-                        } else {
-                            System.out.println(k+"-ta liczba pierwsza to: "+wynik);
-                        }
+                    if (Thread.currentThread().isInterrupted()) {
+                        System.out.println("Przerwano watek...");
+                        return;
                     }
+//                    wynik = getLiczba(k);
+                    System.out.println(k+"-ta liczba pierwsza to: "+wynik);
                 });
                 threads.add(t);
                 t.start();
@@ -56,12 +47,15 @@ public class Main {
         }
     }
 
-    public static synchronized long getLiczba(int ktora) {
-        if (ktora < liczbyPierwsze.size()) {
-            return liczbyPierwsze.get(ktora-1);
-        } else {
-            return 0;
+    public synchronized long getLiczba(int ktora) {
+        while (ktora > liczbyPierwsze.size()) {
+            try {
+                wait();
+            } catch (InterruptedException e) {
+                throw new RuntimeException(e);
+            }
         }
+        return liczbyPierwsze.get(ktora-1);
     }
 
     public static void obliczPierwsza() {
